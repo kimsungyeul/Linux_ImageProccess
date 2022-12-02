@@ -18,8 +18,7 @@ int main(int argc, char** argv) {
 	int i, j, size; 
 	float r,g,b;
 	int x,pos=0;
-	int elemSize;	
-	int mask;
+	int mask=0;
 
 	unsigned char *grayimg, *inimg, *outimg;
 	
@@ -58,6 +57,8 @@ int main(int argc, char** argv) {
 		bmpInfoHeader.biClrUsed = 256;
 	}
 
+	printf("changed true used color : %d\n", bmpInfoHeader.biClrUsed);
+
 	palrgb = (RGBQUAD*)malloc(sizeof(RGBQUAD)*bmpInfoHeader.biClrUsed);
 	fread(palrgb, sizeof(RGBQUAD), bmpInfoHeader.biClrUsed, fp);
 
@@ -75,11 +76,14 @@ int main(int argc, char** argv) {
 	
 	fclose(fp);
 
+	printf("%x : %u\n",0b1, 0b1);
 	for(int x=0; x<bmpInfoHeader.biBitCount; x++){
 		mask |= 0b1 << x;	
 	}
 
-	elemSize = bmpInfoHeader.biBitCount/8;	
+	printf("mask : %x : %u : %d\n",mask,mask,mask);
+	float elemSize = bmpInfoHeader.biBitCount/8.;	
+	printf("elemsize : %f : float : %f\n",elemSize, elemSize);
 	for(x=0; x<(bmpInfoHeader.biHeight*bmpInfoHeader.biWidth)*elemSize; x++) { 
 		int num = inimg[x];
 		for(int i = 8-bmpInfoHeader.biBitCount; i>=0; i-=bmpInfoHeader.biBitCount) {
