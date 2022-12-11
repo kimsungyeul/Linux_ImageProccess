@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 {
     FILE* fp; 
     BITMAPFILEHEADER bmpHeader;             /* BMP FILE INFO */
-    BITMAPINFOHEADER bmpInfoHeader;     /* BMP IMAGE INFO */
+    BITMAPINFOHEADER bmpInfoHeader;     	/* BMP IMAGE INFO */
     RGBQUAD *palrgb;
     ubyte *inimg, *padimg, *outimg;
     int x, y, z, imageSize;
@@ -67,13 +67,13 @@ int main(int argc, char** argv)
 
     for(int y = 0; y < bmpInfoHeader.biHeight; y++) {
 		for(int x = 0; x < size; x+=elemSize) {
-			for(z = 0; z < elemSize; z++) {
+	    	for(z = 0; z < elemSize; z++) {
 				padimg[(x+elemSize)+(y+1)*padSize+z] = inimg[x+y*size+z];
 			}
-		}
-	}		
+		}	
+    }		
 
-	for(y = 0; y < bmpInfoHeader.biHeight; y++) {
+    for(y = 0; y < bmpInfoHeader.biHeight; y++) {
 		for(z = 0; z < elemSize; z++) {
 			padimg[0+(y+1)*padSize+z] = inimg[0+y*size+z];
 			padimg[padSize-elemSize+(y+1)*padSize+z] = inimg[size-elemSize+y*size+z];
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 
 	for(x = 0; x < bmpInfoHeader.biWidth*elemSize; x++) {
 		padimg[x+elemSize] = inimg[x]; 
-		//padimg[(x+elemSize)+(bmpInfoHeader.biHeight+1)*padSize] = inimg[x+(bmpInfoHeader.biHeight-1)*size];
+		padimg[(x+elemSize)+(bmpInfoHeader.biHeight+1)*padSize] = inimg[x+(bmpInfoHeader.biHeight-1)*size];
 	}
 
 	for(z = 0; z < elemSize; z++) {
@@ -96,8 +96,10 @@ int main(int argc, char** argv)
     float kernel[3][3] = { {-1, -1, -1},
                            {-1,  9, -1},
                            {-1, -1, -1} };
-    memset(outimg, 0, sizeof(ubyte)*imageSize);
-    for(y = 1; y < bmpInfoHeader.biHeight+1; y++) { 
+    
+	memset(outimg, 0, sizeof(ubyte)*imageSize);
+    
+	for(y = 1; y < bmpInfoHeader.biHeight+1; y++) { 
         for(x = 1*elemSize; x < padSize; x+=elemSize) {
             for(z = 0; z < elemSize; z++) {
                 float sum = 0.0;
