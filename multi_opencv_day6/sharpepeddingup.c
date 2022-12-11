@@ -16,7 +16,7 @@ int main(int argc, char** argv)
     FILE* fp; 
     BITMAPFILEHEADER bmpHeader;             /* BMP FILE INFO */
     BITMAPINFOHEADER bmpInfoHeader;     	/* BMP IMAGE INFO */
-    RGBQUAD *palrgb;
+    //RGBQUAD *palrgb;
     ubyte *inimg, *padimg, *outimg;
     int x, y, z, imageSize;
 
