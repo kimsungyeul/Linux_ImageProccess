@@ -100,17 +100,17 @@ int main(int argc, char** argv)
 	memset(outimg, 0, sizeof(ubyte)*imageSize);
 	
 	for(y = 1; y < bmpInfoHeader.biHeight+1; y++) { 
-		for(x = 1*elemSize; x < padSize; x+=elemSize) {
-			for(z = 0; z < elemSize; z++) {
-				float sum = 0.0;
-				for(int i = -1; i < 2; i++) {
-					for(int j = -1; j < 2; j++) {
-						sum += kernel[i+1][j+1]*padimg[(x+j*elemSize)+(y+i)*padSize+z];
-					}
-				}
-				outimg[(x-elemSize)+(y-1)*size+z] = LIMIT_UBYTE(sum);
-			}
-		}
+	    for(x = 1*elemSize; x < padSize; x+=elemSize) {
+	        for(z = 0; z < elemSize; z++) {
+	            float sum = 0.0;
+	            for(int i = -1; i < 2; i++) {
+	                for(int j = -1; j < 2; j++) {
+	                    sum += kernel[i+1][j+1]*padimg[(x+j*elemSize)+(y+i)*padSize+z];
+	                }
+	            }
+	            outimg[(x-elemSize)+(y-1)*size+z] = LIMIT_UBYTE(sum);
+                }
+	    }
 	}         
      
 	/***** write bmp *****/ 
