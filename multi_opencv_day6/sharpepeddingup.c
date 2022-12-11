@@ -93,9 +93,9 @@ int main(int argc, char** argv)
 	}
 
     // define the kernel
-    float kernel[3][3] = { {-1, -1, -1},
-                           {-1,  9, -1},
-                           {-1, -1, -1} };
+	float kernel[3][3] = {	{-1, -1, -1},
+							{-1,  9, -1},
+							{-1, -1, -1} };
     
 	memset(outimg, 0, sizeof(ubyte)*imageSize);
 	
