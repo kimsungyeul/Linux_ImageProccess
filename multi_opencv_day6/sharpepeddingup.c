@@ -92,7 +92,7 @@ int main(int argc, char** argv)
 		padimg[padSize-elemSize+(bmpInfoHeader.biHeight+1)*padSize+z] = inimg[size-elemSize+(bmpInfoHeader.biHeight-1)*size+z];	
 	}
 
-    // define the kernel
+	// define the kernel
 	float kernel[3][3] = {	{-1, -1, -1},
 							{-1,  9, -1},
 							{-1, -1, -1} };
@@ -113,21 +113,21 @@ int main(int argc, char** argv)
 		}
 	}         
      
-    /***** write bmp *****/ 
+	/***** write bmp *****/ 
 	if((fp=fopen(argv[2], "wb"))==NULL) { 
 		fprintf(stderr, "Error : Failed to open file...₩n"); 
 		return -1;
 	}
 
-    /* BITMAPFILEHEADER 구조체의 데이터 */
+	/* BITMAPFILEHEADER 구조체의 데이터 */
 	fwrite(&bmpHeader, sizeof(BITMAPFILEHEADER), 1, fp);
 
-    /* BITMAPINFOHEADER 구조체의 데이터 */
+	/* BITMAPINFOHEADER 구조체의 데이터 */
 	fwrite(&bmpInfoHeader, sizeof(BITMAPINFOHEADER), 1, fp);
 	
 	fwrite(outimg, sizeof(ubyte), imageSize, fp);
 
-    fclose(fp); 
+	fclose(fp); 
 	
 	free(inimg); 
 	free(outimg);
