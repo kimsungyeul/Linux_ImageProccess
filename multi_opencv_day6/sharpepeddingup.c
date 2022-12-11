@@ -60,7 +60,7 @@ int main(int argc, char** argv)
     fclose(fp);
 
     int padSize = (bmpInfoHeader.biWidth + 2) * elemSize;
-	int addSize = (padSize + bmpInfoHeader.biHeight) * 2;
+    int addSize = (padSize + bmpInfoHeader.biHeight) * 2;
     padimg = (ubyte*)malloc(sizeof(ubyte)*(imageSize + addSize)); 
 
     memset(padimg, 0, (sizeof(ubyte)*imageSize + addSize));
