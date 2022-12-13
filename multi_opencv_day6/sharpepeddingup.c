@@ -45,8 +45,8 @@ int main(int argc, char** argv)
     }
     
     int elemSize = bmpInfoHeader.biBitCount/8;
-    int size = bmpInfoHeader.biWidth*elemSize;
-    imageSize = size * bmpInfoHeader.biHeight; 
+    int originWidth = bmpInfoHeader.biWidth*elemSize;
+    imageSize = originWidth * bmpInfoHeader.biHeight; 
 
     /* 이미지의 해상도(넓이 × 깊이) */
     printf("Resolution : %d x %d\n", bmpInfoHeader.biWidth, bmpInfoHeader.biHeight);
@@ -59,79 +59,79 @@ int main(int argc, char** argv)
     
     fclose(fp);
 
-    int padSize = (bmpInfoHeader.biWidth + 2) * elemSize;
-    int addSize = (padSize + bmpInfoHeader.biHeight) * 2;
+    int padWidth = (bmpInfoHeader.biWidth + 2) * elemSize;
+    int addSize = (padWidth + bmpInfoHeader.biHeight) * 2;
     padimg = (ubyte*)malloc(sizeof(ubyte)*(imageSize + addSize)); 
 
     memset(padimg, 0, (sizeof(ubyte)*imageSize + addSize));
 
-	for(int y = 0; y < bmpInfoHeader.biHeight; y++) {
-		for(int x = 0; x < size; x+=elemSize) {
-			for(z = 0; z < elemSize; z++) {
-				padimg[(x+elemSize)+(y+1)*padSize+z] = inimg[x+y*size+z];
-			}
-		}	
-	}		
+    for(int y = 0; y < bmpInfoHeader.biHeight; y++) {
+        for(int x = 0; x < originWidth; x+=elemSize) {
+            for(z = 0; z < elemSize; z++) {
+                padimg[(x+elemSize)+(y+1)*padWidth+z] = inimg[x+y*originWidth+z];
+            }
+        }	
+    }		
 
-	for(y = 0; y < bmpInfoHeader.biHeight; y++) {
-		for(z = 0; z < elemSize; z++) {
-			padimg[0+(y+1)*padSize+z] = inimg[0+y*size+z];
-			padimg[padSize-elemSize+(y+1)*padSize+z] = inimg[size-elemSize+y*size+z];
-		}
-	}
-	
-	for(x = 0; x < bmpInfoHeader.biWidth*elemSize; x++) {
-		padimg[x+elemSize] = inimg[x]; 
-		padimg[(x+elemSize)+(bmpInfoHeader.biHeight+1)*padSize] = inimg[x+(bmpInfoHeader.biHeight-1)*size];
-	}
-	
-	for(z = 0; z < elemSize; z++) {
-		padimg[z] = inimg[z];
-		padimg[padSize-elemSize+z] = inimg[size-elemSize+z];
-		padimg[0+(bmpInfoHeader.biHeight+1)*padSize+z] = inimg[0+(bmpInfoHeader.biHeight-1)*size+z];
-		padimg[padSize-elemSize+(bmpInfoHeader.biHeight+1)*padSize+z] = inimg[size-elemSize+(bmpInfoHeader.biHeight-1)*size+z];	
-	}
+    for(y = 0; y < bmpInfoHeader.biHeight; y++) {
+        for(z = 0; z < elemSize; z++) {
+            padimg[0+(y+1)*padWidth+z] = inimg[0+y*originWidth+z];
+            padimg[padWidth-elemSize+(y+1)*padWidth+z] = inimg[originWidth-elemSize+y*originWidth+z];
+        }
+    }
 
-	// define the kernel
-	float kernel[3][3] = { {-1, -1, -1},
-	                       {-1,  9, -1},
-	                       {-1, -1, -1} };
-    
-	memset(outimg, 0, sizeof(ubyte)*imageSize);
-	
-	for(y = 1; y < bmpInfoHeader.biHeight+1; y++) { 
-	    for(x = 1*elemSize; x < padSize; x+=elemSize) {
-	        for(z = 0; z < elemSize; z++) {
-	            float sum = 0.0;
-	            for(int i = -1; i < 2; i++) {
-	                for(int j = -1; j < 2; j++) {
-	                    sum += kernel[i+1][j+1]*padimg[(x+j*elemSize)+(y+i)*padSize+z];
-	                }
-	            }
-	            outimg[(x-elemSize)+(y-1)*size+z] = LIMIT_UBYTE(sum);
+    for(x = 0; x < bmpInfoHeader.biWidth*elemSize; x++) {
+        padimg[x+elemSize] = inimg[x]; 
+        padimg[(x+elemSize)+(bmpInfoHeader.biHeight+1)*padWidth] = inimg[x+(bmpInfoHeader.biHeight-1)*originWidth];
+    }
+
+    for(z = 0; z < elemSize; z++) {
+        padimg[z] = inimg[z];
+        padimg[padWidth-elemSize+z] = inimg[originWidth-elemSize+z];
+        padimg[0+(bmpInfoHeader.biHeight+1)*padWidth+z] = inimg[0+(bmpInfoHeader.biHeight-1)*originWidth+z];
+        padimg[padWidth-elemSize+(bmpInfoHeader.biHeight+1)*padWidth+z] = inimg[originWidth-elemSize+(bmpInfoHeader.biHeight-1)*originWidth+z];	
+    }
+
+    // define the kernel
+    float kernel[3][3] = { {-1, -1, -1},
+                           {-1,  9, -1},
+                           {-1, -1, -1} };
+
+    memset(outimg, 0, sizeof(ubyte)*imageSize);
+
+    for(y = 1; y < bmpInfoHeader.biHeight+1; y++) { 
+        for(x = 1*elemSize; x < padWidth; x+=elemSize) {
+            for(z = 0; z < elemSize; z++) {
+                float sum = 0.0;
+                for(int i = -1; i < 2; i++) {
+                    for(int j = -1; j < 2; j++) {
+                        sum += kernel[i+1][j+1]*padimg[(x+j*elemSize)+(y+i)*padWidth+z];
+                    }
                 }
-	    }
-	}         
-     
-	/***** write bmp *****/ 
-	if((fp=fopen(argv[2], "wb"))==NULL) { 
-		fprintf(stderr, "Error : Failed to open file...₩n"); 
-		return -1;
-	}
+                outimg[(x-elemSize)+(y-1)*originWidth+z] = LIMIT_UBYTE(sum);
+            }
+        }
+    }         
 
-	/* BITMAPFILEHEADER 구조체의 데이터 */
-	fwrite(&bmpHeader, sizeof(BITMAPFILEHEADER), 1, fp);
+    /***** write bmp *****/ 
+    if((fp=fopen(argv[2], "wb"))==NULL) { 
+        fprintf(stderr, "Error : Failed to open file...₩n"); 
+        return -1;
+    }
 
-	/* BITMAPINFOHEADER 구조체의 데이터 */
-	fwrite(&bmpInfoHeader, sizeof(BITMAPINFOHEADER), 1, fp);
-	
-	fwrite(outimg, sizeof(ubyte), imageSize, fp);
+    /* BITMAPFILEHEADER 구조체의 데이터 */
+    fwrite(&bmpHeader, sizeof(BITMAPFILEHEADER), 1, fp);
 
-	fclose(fp); 
-	
-	free(inimg); 
-	free(outimg);
-	free(padimg);
-	
-	return 0;
+    /* BITMAPINFOHEADER 구조체의 데이터 */
+    fwrite(&bmpInfoHeader, sizeof(BITMAPINFOHEADER), 1, fp);
+
+    fwrite(outimg, sizeof(ubyte), imageSize, fp);
+
+    fclose(fp); 
+
+    free(inimg); 
+    free(outimg);
+    free(padimg);
+
+    return 0;
 }
