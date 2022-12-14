@@ -62,8 +62,6 @@ int main(int argc, char** argv)
     int padWidthSize = (bmpInfoHeader.biWidth + 2) * elemSize;
     int padSize = (padWidthSize + bmpInfoHeader.biHeight * elemSize) * 2;
     padimg = (ubyte*)malloc(sizeof(ubyte)*(imageSize + padSize)); 
-	
-	printf("padWidthSize : %d, padSize :%d\n",padWidthSize,padSize);
 
     memset(padimg, 0, (sizeof(ubyte)*imageSize + padSize));
 
