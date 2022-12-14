@@ -59,37 +59,39 @@ int main(int argc, char** argv)
     
     fclose(fp);
 
-    int padWidth = (bmpInfoHeader.biWidth + 2) * elemSize;
-    int addSize = (padWidth + bmpInfoHeader.biHeight) * 2;
-    padimg = (ubyte*)malloc(sizeof(ubyte)*(imageSize + addSize)); 
+    int padWidthSize = (bmpInfoHeader.biWidth + 2) * elemSize;
+    int padSize = (padWidthSize + bmpInfoHeader.biHeight * elemSize) * 2;
+    padimg = (ubyte*)malloc(sizeof(ubyte)*(imageSize + padSize)); 
+	
+	printf("padWidthSize : %d, padSize :%d\n",padWidthSize,padSize);
 
-    memset(padimg, 0, (sizeof(ubyte)*imageSize + addSize));
+    memset(padimg, 0, (sizeof(ubyte)*imageSize + padSize));
 
     for(int y = 0; y < bmpInfoHeader.biHeight; y++) {
         for(int x = 0; x < originWidth; x+=elemSize) {
             for(z = 0; z < elemSize; z++) {
-                padimg[(x+elemSize)+(y+1)*padWidth+z] = inimg[x+y*originWidth+z];
+                padimg[(x+elemSize)+(y+1)*padWidthSize+z] = inimg[x+y*originWidth+z];
             }
         }	
     }		
 
     for(y = 0; y < bmpInfoHeader.biHeight; y++) {
         for(z = 0; z < elemSize; z++) {
-            padimg[0+(y+1)*padWidth+z] = inimg[0+y*originWidth+z];
-            padimg[padWidth-elemSize+(y+1)*padWidth+z] = inimg[originWidth-elemSize+y*originWidth+z];
+            padimg[0+(y+1)*padWidthSize+z] = inimg[0+y*originWidth+z];
+            padimg[padWidthSize-elemSize+(y+1)*padWidthSize+z] = inimg[originWidth-elemSize+y*originWidth+z];
         }
     }
 
     for(x = 0; x < bmpInfoHeader.biWidth*elemSize; x++) {
         padimg[x+elemSize] = inimg[x]; 
-        padimg[(x+elemSize)+(bmpInfoHeader.biHeight+1)*padWidth] = inimg[x+(bmpInfoHeader.biHeight-1)*originWidth];
+        padimg[(x+elemSize)+(bmpInfoHeader.biHeight+1)*padWidthSize] = inimg[x+(bmpInfoHeader.biHeight-1)*originWidth];
     }
 
     for(z = 0; z < elemSize; z++) {
         padimg[z] = inimg[z];
-        padimg[padWidth-elemSize+z] = inimg[originWidth-elemSize+z];
-        padimg[0+(bmpInfoHeader.biHeight+1)*padWidth+z] = inimg[0+(bmpInfoHeader.biHeight-1)*originWidth+z];
-        padimg[padWidth-elemSize+(bmpInfoHeader.biHeight+1)*padWidth+z] = inimg[originWidth-elemSize+(bmpInfoHeader.biHeight-1)*originWidth+z];	
+        padimg[padWidthSize-elemSize+z] = inimg[originWidth-elemSize+z];
+        padimg[0+(bmpInfoHeader.biHeight+1)*padWidthSize+z] = inimg[0+(bmpInfoHeader.biHeight-1)*originWidth+z];
+        padimg[padWidthSize-elemSize+(bmpInfoHeader.biHeight+1)*padWidthSize+z] = inimg[originWidth-elemSize+(bmpInfoHeader.biHeight-1)*originWidth+z];	
     }
 
     // define the kernel
@@ -100,12 +102,12 @@ int main(int argc, char** argv)
     memset(outimg, 0, sizeof(ubyte)*imageSize);
 
     for(y = 1; y < bmpInfoHeader.biHeight+1; y++) { 
-        for(x = 1*elemSize; x < padWidth; x+=elemSize) {
+        for(x = 1*elemSize; x < padWidthSize; x+=elemSize) {
             for(z = 0; z < elemSize; z++) {
                 float sum = 0.0;
                 for(int i = -1; i < 2; i++) {
                     for(int j = -1; j < 2; j++) {
-                        sum += kernel[i+1][j+1]*padimg[(x+j*elemSize)+(y+i)*padWidth+z];
+                        sum += kernel[i+1][j+1]*padimg[(x+j*elemSize)+(y+i)*padWidthSize+z];
                     }
                 }
                 outimg[(x-elemSize)+(y-1)*originWidth+z] = LIMIT_UBYTE(sum);
